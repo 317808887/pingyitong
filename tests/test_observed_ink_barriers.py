@@ -28,6 +28,7 @@ SCREEN = ScreenInfo("INK", Rect(0, 0, 640, 400), Rect(0, 0, 640, 400), 1.0, True
 FIXED = StyleConfig(font_size_mode="fixed", font_size_fixed=14, shadow=False)
 LONG_TEXT = "请勿在传输完成之前断开线缆，否则数据会丢失。"
 DEFAULT_BOUNDS = Rect(10, 10, 600, 120)
+PIPELINE_BOUNDS = Rect(0, 0, 400, 120)
 
 # Font metrics need a QGuiApplication; the allocator is exercised without a
 # widget tree, so one process-wide instance is enough.
@@ -193,7 +194,9 @@ class TestOverlayReportsItsSpaceBasis(unittest.TestCase):
 class TestPipelineAttachesSpaceEvidence(unittest.TestCase):
     """Unbound call: the pipeline stage is exercised without threads or models."""
 
-    def attach(self, image, sources, bounds=Rect(0, 0, 400, 120)):
+    def attach(self, image, sources, bounds=None):
+        if bounds is None:
+            bounds = PIPELINE_BOUNDS
         from pingyitong.core.pipeline import Pipeline
 
         recognized = SimpleNamespace(
