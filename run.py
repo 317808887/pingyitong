@@ -29,7 +29,9 @@ def _check_python_version() -> None:
     项目使用 ``X | Y`` 联合类型语法与 ``dataclass`` 特性，
     最低需要 Python 3.10。
     """
-    if sys.version_info < (3, 10):
+    # UP036 豁免：requires-python 只约束 pip 安装场景，本脚本支持免安装直接
+    # 运行，必须在进入 src 包之前对低版本 Python 给出友好报错。
+    if sys.version_info < (3, 10):  # noqa: UP036
         print(
             f"错误：需要 Python 3.10 或更高版本，当前为 "
             f"{sys.version_info.major}.{sys.version_info.minor}",
