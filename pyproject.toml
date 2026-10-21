@@ -1,0 +1,105 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pingyitong"
+version = "0.6.39"
+description = "屏译通 —— 基于本地大模型的桌面实时原位翻译系统"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "见 LICENSE" }
+authors = [{ name = "邱鼎淳（屏译通团队）" }]
+keywords = ["translation", "ocr", "llm", "offline", "desktop", "overlay"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: Chinese (Simplified)",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+# 运行依赖与 requirements.txt 保持一致
+dependencies = [
+    "PyQt6>=6.5,<7.0",
+    "mss>=9.0",
+    "opencv-python>=4.8",
+    "numpy>=1.24",
+    "rapidocr-onnxruntime==1.4.4",
+    "psutil>=5.9",
+    "llama-cpp-python>=0.2.20",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.1.9", "mypy>=1.8"]
+build = ["pyinstaller>=6.3"]
+
+[project.scripts]
+pingyitong = "pingyitong.__main__:main"
+
+[project.gui-scripts]
+pingyitong-gui = "pingyitong.ui.app:run"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pingyitong = ["py.typed"]
+
+# ---------------------------------------------------------------------------
+# 工具配置
+# ---------------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 96
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle 错误
+    "W",   # pycodestyle 警告
+    "F",   # pyflakes
+    "I",   # isort 导入排序
+    "N",   # pep8 命名
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",  # 行长度由 formatter 负责，中文注释按字符计宽会误报
+    "N802",  # Qt 覆写方法使用驼峰命名（paintEvent 等）
+    "N803",  # Qt 回调参数名
+    "N815",  # Qt 混用命名风格
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+# Qt 的信号/槽与动态属性难以静态推断，对 UI 层放宽要求
+files = ["src/pingyitong"]
+exclude = ["src/pingyitong/ui/"]
+
+[[tool.mypy.overrides]]
+module = ["cv2", "mss", "rapidocr_onnxruntime", "llama_cpp", "pynvml"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+filterwarnings = ["ignore::DeprecationWarning"]

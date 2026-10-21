@@ -1,0 +1,20 @@
+# 屏译通开发依赖
+#
+# 安装：
+#     python -m pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+# 测试框架
+pytest>=7.4
+pytest-cov>=4.1
+
+# 代码质量
+ruff>=0.1.9
+mypy>=1.8
+
+# 类型存根
+types-psutil>=5.9
+
+# 打包
+pyinstaller>=6.3

@@ -1,0 +1,60 @@
+Third-party OCR recognition model notices
+PingYiTong / 屏译通
+
+This application distributes the following unmodified ONNX OCR recognition
+models obtained from the official RapidAI/RapidOCR ModelScope repository at
+the v3.9.2 download URLs. File hashes and sizes are in MODEL_LICENSES.json.
+
+  ka_PP-OCRv4_rec_mobile.onnx
+  arabic_PP-OCRv5_rec_mobile.onnx
+  ch_PP-OCRv5_rec_mobile.onnx
+  cyrillic_PP-OCRv5_rec_mobile.onnx
+  devanagari_PP-OCRv5_rec_mobile.onnx
+  el_PP-OCRv5_rec_mobile.onnx
+  korean_PP-OCRv5_rec_mobile.onnx
+  latin_PP-OCRv5_rec_mobile.onnx
+  ta_PP-OCRv5_rec_mobile.onnx
+  te_PP-OCRv5_rec_mobile.onnx
+  th_PP-OCRv5_rec_mobile.onnx
+
+The following unmodified detection/classification models are also included
+from the installed rapidocr_onnxruntime 1.4.4 package under the same bundled
+PaddleOCR model licensing statement:
+  ch_PP-OCRv4_det_infer.onnx
+  ch_ppocr_mobile_v2.0_cls_infer.onnx
+
+Upstream OCR models: PaddleOCR (PaddlePaddle).
+Copyright in the upstream model weights is held by Baidu and/or the respective
+PaddleOCR rights holders, as stated in the official RapidOCR Models licensing
+section. These models are redistributed under Apache License, Version 2.0.
+Official upstream: https://github.com/PaddlePaddle/PaddleOCR
+
+ONNX conversion and model hosting: RapidAI / RapidOCR.
+RapidOCR does not claim ownership of the upstream model weights; converted
+model artifacts are redistributed under the upstream Apache-2.0 terms.
+Official conversion/hosting project: https://github.com/RapidAI/RapidOCR
+Official model repository: https://www.modelscope.cn/models/RapidAI/RapidOCR
+
+Source-code copyright notices retained in the upstream license texts:
+  Copyright (c) 2021 RapidAI. All rights reserved.
+  Copyright (c) 2016 PaddlePaddle Authors. All Rights Reserved.
+These source-code notices are not presented as a transfer of model ownership.
+
+The Arabic prediction reordering implementation is adapted from PaddleOCR
+ppocr/postprocess/rec_postprocess.py (Apache-2.0). Application adaptations made
+on 2026-10-06 preserve Unicode EN/AN numeric runs and adjacent numeric
+separators, and handle right-to-left OCR block reading order. This text does
+not claim that the upstream model weights were modified.
+Source: https://github.com/PaddlePaddle/PaddleOCR/blob/main/ppocr/postprocess/rec_postprocess.py
+
+Complete upstream license texts are supplied in:
+  LICENSES/PaddleOCR_LICENSE.txt
+  LICENSES/RapidOCR_LICENSE.txt
+
+Official model licensing evidence is retained in:
+  UPSTREAM_RapidOCR_README.md
+  UPSTREAM_ModelScope_README.md
+
+This is an application attribution notice, not a claim of upstream sponsorship,
+affiliation, cooperation or endorsement. The upstream Apache-2.0 texts and
+their warranty and liability terms remain applicable.

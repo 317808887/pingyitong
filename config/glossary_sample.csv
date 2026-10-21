@@ -1,0 +1,52 @@
+原文,译文,区分大小写,整词匹配
+# 屏译通术语表示例
+# ---------------------------------------------------------------
+# 格式说明：
+#   第 1 列 原文术语
+#   第 2 列 对应译文
+#   第 3 列 是否区分大小写（是 / 否），留空表示否
+#   第 4 列 是否整词匹配（是 / 否），留空表示是
+#
+# 以 # 开头的行会被忽略，可作为注释。
+# 术语按长度从长到短匹配，因此 "machine learning" 不会被 "machine" 提前拆开。
+# 翻译前术语会被替换为占位符，翻译后还原，因此译文不会因上下文变化而漂移。
+# 文件可使用 UTF-8（含 BOM）或 GBK 编码。
+# ---------------------------------------------------------------
+machine learning,机器学习,,是
+deep learning,深度学习,,是
+neural network,神经网络,,是
+large language model,大语言模型,,是
+LLM,大模型,否,是
+OCR,光学字符识别,是,是
+GPU,图形处理器,是,是
+CPU,中央处理器,是,是
+CUDA,统一计算设备架构,是,是
+inference,推理,,否
+quantization,量化,,否
+fine-tuning,微调,,否
+token,词元,,否
+prompt,提示词,,否
+desktop duplication API,桌面复制接口,否,是
+high DPI,高 DPI,否,是
+mouse passthrough,鼠标穿透,,是
+overlay,叠加层,,否
+screenshot,屏幕截图,,否
+latency,延迟,,否
+throughput,吞吐量,,否
+offline,离线,,否
+privacy,隐私,,否
+telemetry,遥测,,否
+Spark-X2.5,讯飞星火 X2.5,是,是
+iFlytek,科大讯飞,否,是
+llama.cpp,llama.cpp,是,是
+GGUF,GGUF 量化格式,是,是
+PyQt6,PyQt6,是,是
+RapidOCR,RapidOCR（文字识别）,是,是
+python-mss,python-mss（屏幕捕获）,是,是
+OpenCV,OpenCV（图像处理）,是,是
+psutil,psutil（资源监控）,是,是
+GitHub,GitHub,是,是
+README,说明文档,是,是
+changelog,更新日志,,否
+commit,提交,,否
+repository,代码仓库,,否

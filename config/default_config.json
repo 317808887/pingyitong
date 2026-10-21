@@ -1,0 +1,139 @@
+{
+  "config_version": 1,
+  "capture": {
+    "fps": 15,
+    "mode": "fullscreen",
+    "region": null,
+    "monitors": [],
+    "enable_diff": true,
+    "diff_pixel_threshold": 24,
+    "diff_min_area_ratio": 0.0004,
+    "diff_block_size": 16,
+    "adaptive_fps": true,
+    "edge_margin": 0
+  },
+  "ocr": {
+    "min_confidence": 0.5,
+    "min_box_height": 6,
+    "box_padding": 2,
+    "enable_preprocess": true,
+    "upscale_factor": 1.0,
+    "max_blocks_per_frame": 120,
+    "line_merge_overlap_ratio": 0.55,
+    "same_line_gap_ratio": 1.6,
+    "paragraph_gap_ratio": 1.7
+  },
+  "preprocess": {
+    "merge_broken_lines": true,
+    "repair_hyphenation": true,
+    "deduplicate": true,
+    "filter_noise": true,
+    "skip_pure_numeric": true,
+    "skip_same_language": true
+  },
+  "model": {
+    "fast": {
+      "enabled": true,
+      "file_name": "Spark-X2.5-1.7B-Q4_K_M.gguf",
+      "n_ctx": 2048,
+      "n_threads": 0,
+      "n_gpu_layers": 0,
+      "n_batch": 256,
+      "temperature": 0.2,
+      "top_p": 0.9,
+      "max_tokens": 384,
+      "keep_resident": true,
+      "preload": true
+    },
+    "accurate": {
+      "enabled": true,
+      "file_name": "Spark-X2.5-4B-Q4_K_M.gguf",
+      "n_ctx": 2048,
+      "n_threads": 0,
+      "n_gpu_layers": 0,
+      "n_batch": 256,
+      "temperature": 0.2,
+      "top_p": 0.9,
+      "max_tokens": 768,
+      "keep_resident": false,
+      "preload": true
+    },
+    "batch_size": 6,
+    "enable_cache": true,
+    "cache_max_entries": 4096,
+    "cache_ttl_seconds": 1800.0
+  },
+  "schedule": {
+    "mode": "auto",
+    "active_model": "spark-x2.5-4b",
+    "resource_adaptive": true,
+    "cpu_high_threshold": 70.0,
+    "cpu_high_sustain_seconds": 3.0,
+    "render_fps_low_threshold": 10.0,
+    "gpu_free_memory_min_mb": 2048,
+    "content_adaptive": true,
+    "long_text_chars": 80,
+    "accurate_idle_timeout": 180.0,
+    "preload_on_start": true
+  },
+  "translation": {
+    "source_language": "auto",
+    "target_language": "zh",
+    "fallback_source_language": "en",
+    "keep_source_text": false,
+    "glossary_enabled": true,
+    "glossary_path": "",
+    "glossary_mode": "builtin",
+    "glossary_domain": "software_ai",
+    "glossary_case_sensitive": false
+  },
+  "style": {
+    "mode": "cover",
+    "font_family": "",
+    "font_size_mode": "auto",
+    "font_size_fixed": 14,
+    "font_scale": 1.0,
+    "min_font_size": 9,
+    "max_font_size": 44,
+    "bold": false,
+    "text_color": "#FFFFFF",
+    "bg_color": "#101418",
+    "bg_opacity": 0.62,
+    "bg_radius": 4,
+    "padding_x": 3,
+    "padding_y": 1,
+    "shadow": true,
+    "shadow_color": "#000000",
+    "shadow_offset": 1,
+    "line_spacing": 1.08,
+    "max_lines": 6,
+    "offset_x": 0,
+    "offset_y": 0
+  },
+  "hotkey": {
+    "enabled": true,
+    "toggle_translation": "Ctrl+Alt+T",
+    "switch_model": "Ctrl+Alt+M",
+    "copy_result": "Ctrl+Alt+C",
+    "toggle_overlay": "Ctrl+Alt+H"
+  },
+  "history": {
+    "enabled": true,
+    "max_entries": 20000,
+    "store_source_text": true
+  },
+  "ui": {
+    "theme": "dark",
+    "floating_bar_visible": true,
+    "floating_bar_pos": null,
+    "start_minimized": true,
+    "autostart": false,
+    "first_run_done": false,
+    "overlay_visible": true,
+    "language": "zh",
+    "respect_reduced_motion": true,
+    "reduced_motion": false,
+    "notifications": true
+  },
+  "last_active_model": "spark-x2.5-4b"
+}
