@@ -154,19 +154,6 @@ def fetch(
         except (urllib.error.URLError, OSError, ValueError) as exc:
             return FetchResult(kind="error", reason=f"网络错误：{exc}")
 
-        # 重定向：逐跳手动跟进并重新校验
-        if response.status in (301, 302, 303, 307, 308):
-            target = response.headers.get("Location", "")
-            response.close()
-            if not target:
-                return FetchResult(kind="error", reason="重定向缺少 Location")
-            current = urljoin(current, target)
-            if validate:
-                reason = validate_url(current)
-                if reason:
-                    return FetchResult(kind="blocked", reason=f"重定向被拒：{reason}")
-            continue
-
         if response.status != 200:
             response.close()
             return FetchResult(kind="error", reason=f"HTTP {response.status}")

@@ -624,6 +624,10 @@ python build/build_exe.py
 python build/build_exe.py --installer
 ```
 
+版本号唯一来源为 `src/pingyitong/version.py`，`pyproject.toml` 与其保持一致，
+`build/installer.iss` 由打包脚本自动注入，不要单独修改。
+各版本变更见 [`CHANGELOG.md`](CHANGELOG.md)。
+
 ### 重新生成图标
 
 图标资源来自 PPT 中展示的软件图标，可通过脚本重新生成：

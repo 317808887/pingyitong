@@ -113,7 +113,7 @@ class TestEconGate(unittest.TestCase):
 
 
 class _Handler(http.server.BaseHTTPRequestHandler):
-    """测试站点：/ok /login /loop /robots_disallow /big /next"""
+    """测试站点：/ok /login /loop /self_redirect /noloc /robots_disallow /big /next"""
 
     robots_disallow = False
 
@@ -142,6 +142,13 @@ class _Handler(http.server.BaseHTTPRequestHandler):
         elif self.path == "/loop":
             self.send_response(302)
             self.send_header("Location", "http://10.0.0.5/inner")
+            self.end_headers()
+        elif self.path == "/self_redirect":
+            self.send_response(302)
+            self.send_header("Location", "/ok")
+            self.end_headers()
+        elif self.path == "/noloc":
+            self.send_response(302)
             self.end_headers()
         elif self.path == "/401":
             self.send_response(401)
@@ -220,6 +227,18 @@ class TestWebFetcherHTTP(unittest.TestCase):
         result = fetch(f"{self.base}/loop", validate=False)
         self.assertEqual(result.kind, "blocked")
         self.assertIn("重定向", result.reason)
+
+    def test_redirect_to_loopback_blocked_even_without_validate(self) -> None:
+        """validate=False 只放宽初始 URL：302 跳回 loopback 仍逐跳拦截。"""
+        result = fetch(f"{self.base}/self_redirect", validate=False)
+        self.assertEqual(result.kind, "blocked")
+        self.assertIn("重定向", result.reason)
+
+    def test_redirect_missing_location_error(self) -> None:
+        """/noloc 302 不带 Location——返回错误原因，不静默跟进。"""
+        result = fetch(f"{self.base}/noloc", validate=False)
+        self.assertEqual(result.kind, "error")
+        self.assertIn("Location", result.reason)
 
 
 class TestReaderView(unittest.TestCase):

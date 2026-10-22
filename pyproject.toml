@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pingyitong"
-version = "0.6.39"
+version = "0.6.40"
 description = "屏译通 —— 基于本地大模型的桌面实时原位翻译系统"
 readme = "README.md"
 requires-python = ">=3.10"
