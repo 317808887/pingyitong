@@ -40,6 +40,21 @@
   较 0.6.40 记录的 1716 + 1088 增加 16 条，与新增测试文件条数一致。
 - `python -m ruff check src tests`：All checks passed。
 
+### 发布产物（2026-10-23）
+
+- `python build/build_exe.py --installer`（onedir，未含 CUDA）：
+  - `build/dist/PingYiTong/PingYiTong.exe`：14.2 MB，`base_library.zip` 校验通过。
+  - `build/Output/屏译通-Setup-0.6.41.exe`：2.7 MB；文件版本 0.6.41。
+  - `build/Output/屏译通-Setup-0.6.41-1.bin`：3.9 GB。
+- `scripts/verify_packaged_release.py --version 0.6.41`：`version_matches=true`，
+  69 个函数、100 个模块、20 个 OCR 资产与源码逐项一致（`passed=true`）。
+- `scripts/install_verified_release.ps1 -Version 0.6.41`：静默安装 exit 0，
+  注册表版本/路径一致，built 与 installed EXE 的 SHA256 相同，用户 `config.json` 未被改动。
+- 安装版 `--self-check`：屏幕捕获、文字识别、模型权重、推理运行时、数据目录五项全通过
+  （证据：`artifacts/install_0641/`，该目录不入库）。
+- 分发包 `屏译通-Setup-0.6.41.zip` 及 `parts_0641/*.part` 六卷回读校验通过，
+  分卷拼接 SHA256 与 zip 一致；校验清单见 `build/Output/SHA256SUMS-0.6.41.txt`。
+
 ## 0.6.40（2026-10-22）
 
 ### 修复
