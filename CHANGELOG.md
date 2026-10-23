@@ -60,8 +60,11 @@
   - `build/dist/PingYiTong/PingYiTong.exe`：14.2 MB，SHA256 `6a19e119…58a76e`。
   - `build/Output/屏译通-Setup-0.6.41.exe`：2.7 MB；文件版本 0.6.41。
   - `build/Output/屏译通-Setup-0.6.41-1.bin`：3.9 GB。
-- `scripts/verify_packaged_release.py --version 0.6.41`：`version_matches=true`，
-  69 个函数、100 个模块、20 个 OCR 资产与源码逐项一致（`passed=true`）；
+- `python scripts/verify_packaged_release.py build/dist/PingYiTong/PingYiTong.exe --version 0.6.41`：
+  `version_matches=true`，69 个函数、100 个模块、20 个 OCR 资产与源码逐项一致
+  （`passed=true`）。脚本入参须为 PyInstaller 内层 exe，不能传 Inno Setup 的
+  `屏译通-Setup-0.6.41.exe`，否则读取不到 `COOKIE` magic 而报
+  `ArchiveReadError`；
   另反汇编包内 `open_with_proxy_fallback` 确认存在 `RAISE_VARARGS(2)`
   （即 `raise first from None`），证明补丁确实进入安装包。
 - `scripts/install_verified_release.ps1 -Version 0.6.41`：静默安装 exit 0，
