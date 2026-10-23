@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Final
 
-__version__: Final[str] = "0.6.40"
+__version__: Final[str] = "0.6.41"
 __stage__: Final[str] = "核心功能"
 
 #: 与版本对应的阶段说明，用于关于对话框中展示。

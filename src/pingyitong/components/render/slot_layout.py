@@ -30,8 +30,8 @@ class SlotAllocation:
 
 
 def readable_font_size(items: list[RenderItem], style: object) -> int:
-    """One body size per frame; source height never licenses 9px translation."""
-    minimum = max(READABLE_FONT_PX, int(getattr(style, "min_font_size", 9)))
+    """One body size per frame; source height never licenses sub-12px translation."""
+    minimum = max(READABLE_FONT_PX, int(getattr(style, "min_font_size", 12)))
     maximum = max(minimum, int(getattr(style, "max_font_size", 44)))
     if getattr(style, "font_size_mode", "auto") == "fixed":
         return max(minimum, min(maximum, int(getattr(style, "font_size_fixed", 14))))
@@ -103,7 +103,7 @@ def allocate_slots(
     ))
     for item in order:
         seed = occupied[id(item)]
-        minimum = max(READABLE_FONT_PX, int(getattr(style, "min_font_size", 9)))
+        minimum = max(READABLE_FONT_PX, int(getattr(style, "min_font_size", 12)))
         maximum = max(minimum, int(getattr(style, "max_font_size", 44)))
         size = max(minimum, min(maximum, int(item.font_px or shared_font)))
         if seed.isEmpty():

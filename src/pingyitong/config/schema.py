@@ -421,7 +421,7 @@ class StyleConfig:
     font_size_fixed: int = 14
     #: 自动模式下的字号缩放系数
     font_scale: float = 1.0
-    min_font_size: int = 9
+    min_font_size: int = 12
     max_font_size: int = 44
     bold: bool = False
     text_color: str = "#FFFFFF"

@@ -3,6 +3,43 @@
 版本号格式遵循 `pyproject.toml` / `src/pingyitong/version.py` 的单一来源（`build/installer.iss`
 由 `build/build_exe.py` 从 `version.py` 读取注入，不单独维护）。
 
+## 0.6.41（2026-10-23）
+
+### 新增
+
+- **`utils/urlopen_proxy_safe.py`：本机代理端点故障时降级直连**
+  - `open_with_proxy_fallback(request, timeout, *, handlers=())` 为通用核心，
+    支持透传额外 handler；`urlopen_with_proxy_fallback()` 为无额外 handler 版本。
+  - `local_proxy_endpoint_unreachable(exc)` 公开判据：系统代理全部为 loopback
+    （127.0.0.1 / localhost / ::1）且异常为连接被拒 / 超时形态时返回真；
+    未配置代理、远程代理、HTTP 状态码、DNS 失败均不降级。
+  - 首次请求仍走默认 opener（跟随系统代理），仅在命中判据时用
+    `ProxyHandler({})` 直连重试一次；两次均失败则抛出**首次**原始异常。
+
+### 修复
+
+- **`web_fetcher` 与 `network_monitor` 接入代理降级**
+  - `web_fetcher.robots_allows` 与 `fetch` 正文路径改用
+    `open_with_proxy_fallback`；新增 `_open_noredirect()` 透传 `_NoRedirect`，
+    使首次与降级直连两条路径都保持「手动逐跳重定向」语义。
+  - `network_monitor._probe_http` 改用 `urlopen_with_proxy_fallback`。
+  - 附注：本机系统代理（fcclient 等）抖动时，原实现会把代理端点自身故障
+    记为站点 `timeout`，连续 3 次后该站进入 COOLDOWN。
+
+- **最小字号下限 9px → 12px**
+  - `config/schema.py`：`StyleConfig.min_font_size` 默认值 12。
+  - `components/render/layout.py`、`components/render/slot_layout.py`：
+    `getattr(style, "min_font_size", 9)` 兜底值改为 12，共 3 处。
+  - `config/settings.py`：`min_font_size` 与 `font_size_fixed` 的规范化下限
+    由 6 提升到 12。
+
+### 测试与构建
+
+- `python -m pytest tests/test_urlopen_proxy_safe.py -v`：16 passed。
+- `python -m pytest tests/`：1732 passed + 1088 subtests passed（85.55s）。
+  较 0.6.40 记录的 1716 + 1088 增加 16 条，与新增测试文件条数一致。
+- `python -m ruff check src tests`：All checks passed。
+
 ## 0.6.40（2026-10-22）
 
 ### 修复

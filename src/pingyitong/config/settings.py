@@ -317,9 +317,9 @@ class SettingsManager(QObject):
         # needs translation, including mixed-language paragraphs.
 
         cfg.style.font_scale = max(0.4, min(3.0, float(cfg.style.font_scale)))
-        cfg.style.min_font_size = max(6, int(cfg.style.min_font_size))
+        cfg.style.min_font_size = max(12, int(cfg.style.min_font_size))
         cfg.style.max_font_size = max(cfg.style.min_font_size, int(cfg.style.max_font_size))
-        cfg.style.font_size_fixed = max(6, int(cfg.style.font_size_fixed))
+        cfg.style.font_size_fixed = max(12, int(cfg.style.font_size_fixed))
         cfg.style.bg_opacity = max(0.0, min(1.0, float(cfg.style.bg_opacity)))
         cfg.style.line_spacing = max(0.8, min(2.5, float(cfg.style.line_spacing)))
         cfg.style.max_lines = max(1, int(cfg.style.max_lines))

@@ -156,7 +156,7 @@ def layout_text(
 
     family = getattr(style, "font_family", "") or ""
     bold = bool(getattr(style, "bold", False))
-    min_size = max(1, int(readable_min_px), int(getattr(style, "min_font_size", 9)))
+    min_size = max(1, int(readable_min_px), int(getattr(style, "min_font_size", 12)))
     max_size = max(min_size, int(getattr(style, "max_font_size", 44)))
     max_lines = max(1, int(getattr(style, "max_lines", 6)))
     line_spacing = max(1.0, float(getattr(style, "line_spacing", 1.08)))

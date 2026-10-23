@@ -28,6 +28,7 @@ from enum import Enum
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from ...utils.logger import get_logger
+from ...utils.urlopen_proxy_safe import urlopen_with_proxy_fallback
 
 logger = get_logger(__name__)
 
@@ -68,11 +69,16 @@ def _probe_tcp(host: str, port: int, timeout_s: float) -> bool:
 def _probe_http(url: str, timeout_s: float) -> bool:
     """HTTP 层探测：captive portal 会把请求劫持到认证页，
     这里只区分"HTTP 栈可达"与"完全不可达"，劫持检测由调用方
-    对比返回体特征（探测点返回 204 时响应码非 204 即疑似 portal）。"""
+    对比返回体特征（探测点返回 204 时响应码非 204 即疑似 portal）。
+
+    探测跟随系统代理；loopback 代理端点自身故障时降级直连重试一次
+    （见 :mod:`...utils.urlopen_proxy_safe`）——否则代理客户端抖动
+    会让探测器误判 OFFLINE，预翻译网关随之停摆。
+    """
     try:
         request = urllib.request.Request(url, method="GET",
                                          headers={"User-Agent": "PingYiTong/1.0"})
-        with urllib.request.urlopen(request, timeout=timeout_s) as response:
+        with urlopen_with_proxy_fallback(request, timeout=timeout_s) as response:
             return response.status < 500
     except OSError:
         return False

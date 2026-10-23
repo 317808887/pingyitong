@@ -21,10 +21,12 @@ import re
 import time
 import urllib.error
 import urllib.request
+import urllib.response
 from dataclasses import dataclass, field
 from urllib.parse import urljoin, urlparse
 
 from ...utils.logger import get_logger
+from ...utils.urlopen_proxy_safe import open_with_proxy_fallback
 from .ssrf import MAX_REDIRECTS, validate_url
 
 logger = get_logger(__name__)
@@ -88,7 +90,7 @@ def robots_allows(url: str, timeout_s: float = 5.0) -> tuple[bool, str]:
         parser = urllib.robotparser.RobotFileParser()
         try:
             request = urllib.request.Request(robots_url, headers={"User-Agent": USER_AGENT})
-            with urllib.request.urlopen(request, timeout=timeout_s) as response:
+            with open_with_proxy_fallback(request, timeout=timeout_s) as response:
                 body = response.read(64 * 1024).decode("utf-8", "replace")
             parser.parse(body.splitlines())
         except Exception:  # noqa: BLE001 - robots 不可得按允许处理（仍限速）
@@ -128,12 +130,11 @@ def fetch(
 
     current = url
     for _ in range(MAX_REDIRECTS + 1):
-        opener = urllib.request.build_opener(_NoRedirect())
         request = urllib.request.Request(
             current, headers={"User-Agent": USER_AGENT, "Accept": "text/html"}
         )
         try:
-            response = opener.open(request, timeout=timeout_s)
+            response = _open_noredirect(request, timeout_s)
         except urllib.error.HTTPError as exc:
             if exc.code in (301, 302, 303, 307, 308):
                 # _NoRedirect 把重定向变成 HTTPError：手动跟进。
@@ -183,6 +184,26 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: N802
         return None
+
+
+def _open_noredirect(
+    request: urllib.request.Request, timeout_s: float
+) -> urllib.response.addinfourl:
+    """用禁用重定向的 opener 打开请求；loopback 系统代理端点故障时降直连。
+
+    ``build_opener`` 默认会加装跟随系统代理的 ``ProxyHandler``，因此抓取
+    流量同样经过系统代理；代理客户端（fcclient 等）抖动时全套预取
+    被误判 ``timeout``/``网络错误`` 而冷却。
+
+    降级策略与判据统一由 :func:`~pingyitong.utils.urlopen_proxy_safe.
+    open_with_proxy_fallback` 承担；这里只负责把 ``_NoRedirect`` 作为
+    额外 handler 透传，使**首次与降级直连两条路径都保持**"手动逐跳
+    重定向"语义——直连得到的 3xx 会照常变成 ``HTTPError``，交由下方
+    ``fetch()`` 的 ``HTTPError(301|302|...)`` 分支手动跟进并逐跳校验。
+    """
+    return open_with_proxy_fallback(
+        request, timeout_s, handlers=(_NoRedirect(),)
+    )
 
 
 # ----------------------------------------------------------------------
