@@ -154,7 +154,13 @@ def open_with_proxy_fallback(
     direct_opener = urllib.request.build_opener(
         urllib.request.ProxyHandler({}), *handlers
     )
-    return direct_opener.open(request, timeout=timeout)
+    try:
+        return direct_opener.open(request, timeout=timeout)
+    except Exception:
+        # 降级也失败：抛首次异常（代理端点故障），而不是直连的二次失败。
+        # 首次异常才是"为什么降级"的根因；把二次失败抛出去会让上层
+        # 把代理故障记账成站点不可达，正是本模块要消除的误导。
+        raise first from None
 
 
 def urlopen_with_proxy_fallback(

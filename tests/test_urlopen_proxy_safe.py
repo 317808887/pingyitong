@@ -179,6 +179,40 @@ class TestProxyFallbackConditions(unittest.TestCase):
                     result = urlopen_with_proxy_fallback(self._request(), 5.0)
         self.assertIs(sentinel, result)
 
+    def test_both_attempts_fail_raises_first_exception(self) -> None:
+        """降级也失败时应抛首次（代理端点）异常，而非直连的二次失败。
+
+        首次异常是"为什么降级"的根因；抛二次失败会让上层把代理故障
+        记账成站点不可达，正是本模块要消除的误导。
+        """
+        first_exc = urllib.error.URLError(ConnectionRefusedError("proxy refused"))
+        second_exc = urllib.error.URLError(OSError(11001, "direct dns failed"))
+        with (mock.patch("urllib.request.getproxies", return_value=self.DEAD),
+              mock.patch("urllib.request.urlopen", side_effect=first_exc),
+              mock.patch("urllib.request.build_opener") as build):
+                    build.return_value.open.side_effect = second_exc
+                    with self.assertRaises(urllib.error.URLError) as caught:
+                        urlopen_with_proxy_fallback(self._request(), 5.0)
+        self.assertIs(first_exc, caught.exception)
+        # ``raise ... from None`` 抑制的是 traceback 链展示（__suppress_context__），
+        # 并不清空 __context__；__cause__ 为 None 才是"未显式指定原因"的信号。
+        self.assertTrue(caught.exception.__suppress_context__)
+        self.assertIsNone(caught.exception.__cause__)
+
+    def test_both_attempts_fail_keeps_first_with_custom_handlers(self) -> None:
+        """透传 handler 的路径同样抛首次异常（web_fetcher 走的正是这条）。"""
+        first_exc = urllib.error.URLError(ConnectionRefusedError("proxy refused"))
+        second_exc = urllib.error.URLError(OSError(11001, "direct dns failed"))
+        handler = urllib.request.HTTPRedirectHandler()
+        with (mock.patch("urllib.request.getproxies", return_value=self.DEAD),
+              mock.patch("urllib.request.build_opener") as build):
+                    build.return_value.open.side_effect = [first_exc, second_exc]
+                    with self.assertRaises(urllib.error.URLError) as caught:
+                        ups.open_with_proxy_fallback(
+                            self._request(), 5.0, handlers=(handler,),
+                        )
+        self.assertIs(first_exc, caught.exception)
+
 
 class TestEndpointBrokenClassifier(unittest.TestCase):
     """_proxy_endpoint_broke 的错误形态白名单。"""
