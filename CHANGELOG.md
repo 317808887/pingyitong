@@ -70,6 +70,12 @@
 - `scripts/install_verified_release.ps1 -Version 0.6.41`：静默安装 exit 0，
   注册表版本/路径一致，built 与 installed EXE 的 SHA256 同为 `6A19E119…8A76E`，
   用户 `config.json` 前后哈希一致（证据：`artifacts/install_0641_rebuild/`，不入库）。
+- 重建包安装版 `--self-check`：屏幕捕获、文字识别、模型权重、推理运行时、数据目录
+  五项全通过，日志头部版本为 `0.6.41`，数据目录为隔离路径
+  `F:\讯飞\新建文件夹\_selfcheck_0641c`（证据：
+  `artifacts/install_0641_rebuild/selfcheck_rebuilt_0.6.41.log`，不入库）。
+  此前 18:56 的 `artifacts/install_0641/selfcheck_0.6.41.log` 产生于 19:18 重建之前，
+  对应旧构建，不作为重建包证据。
 - 分发包 `屏译通-Setup-0.6.41.zip`（`testzip=None`、成员哈希一致）及
   `parts_0641/*.part` 六卷拼接 SHA256 与 zip 相同（`9bb13176…bec86c`）；
   校验清单 `build/Output/SHA256SUMS-0.6.41.txt` 已随重建重算（9 条）。
