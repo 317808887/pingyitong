@@ -35,25 +35,44 @@
 
 ### 测试与构建
 
-- `python -m pytest tests/test_urlopen_proxy_safe.py -v`：16 passed。
-- `python -m pytest tests/`：1732 passed + 1088 subtests passed（85.55s）。
-  较 0.6.40 记录的 1716 + 1088 增加 16 条，与新增测试文件条数一致。
+- `python -m pytest tests/test_urlopen_proxy_safe.py -v`：18 passed。
+- `python -m pytest tests/`：1734 passed + 1088 subtests passed（84.65s）。
+  较 0.6.40 记录的 1716 + 1088 增加 18 条，与新增测试文件条数一致。
 - `python -m ruff check src tests`：All checks passed。
 
-### 发布产物（2026-10-23）
+### 修复（验收后补丁）
+
+- **降级分支兑现「抛首次异常」契约**
+  - `utils/urlopen_proxy_safe.py` 的 `open_with_proxy_fallback` 原实现直接
+    `return direct_opener.open(...)`，降级再次失败时抛的是直连的**第二次**
+    异常，与模块 docstring 及本节「两次均失败则抛出首次原始异常」相反。
+    后果是 `web_fetcher` 转成 `FetchResult(kind="error")`、`network_monitor`
+    吞成 `False` 时，把代理端点故障记账成站点不可达。
+  - 修复：降级分支包 `except Exception: raise first from None`。
+  - 补 2 条用例覆盖此前完全空缺的「两次均失败」分支：默认路径与透传
+    handler 路径各一条；断言异常对象恒为首次、`__suppress_context__` 为真。
+  - 该缺陷由 0.6.41 首次打包后的验收发现，原 16 条用例未覆盖该分支，
+    故已生成的旧安装包内含旧行为，本次已重新打包覆盖。
+
+### 发布产物（2026-10-23，含验收后重建）
 
 - `python build/build_exe.py --installer`（onedir，未含 CUDA）：
-  - `build/dist/PingYiTong/PingYiTong.exe`：14.2 MB，`base_library.zip` 校验通过。
+  - `build/dist/PingYiTong/PingYiTong.exe`：14.2 MB，SHA256 `6a19e119…58a76e`。
   - `build/Output/屏译通-Setup-0.6.41.exe`：2.7 MB；文件版本 0.6.41。
   - `build/Output/屏译通-Setup-0.6.41-1.bin`：3.9 GB。
 - `scripts/verify_packaged_release.py --version 0.6.41`：`version_matches=true`，
-  69 个函数、100 个模块、20 个 OCR 资产与源码逐项一致（`passed=true`）。
+  69 个函数、100 个模块、20 个 OCR 资产与源码逐项一致（`passed=true`）；
+  另反汇编包内 `open_with_proxy_fallback` 确认存在 `RAISE_VARARGS(2)`
+  （即 `raise first from None`），证明补丁确实进入安装包。
 - `scripts/install_verified_release.ps1 -Version 0.6.41`：静默安装 exit 0，
-  注册表版本/路径一致，built 与 installed EXE 的 SHA256 相同，用户 `config.json` 未被改动。
-- 安装版 `--self-check`：屏幕捕获、文字识别、模型权重、推理运行时、数据目录五项全通过
-  （证据：`artifacts/install_0641/`，该目录不入库）。
-- 分发包 `屏译通-Setup-0.6.41.zip` 及 `parts_0641/*.part` 六卷回读校验通过，
-  分卷拼接 SHA256 与 zip 一致；校验清单见 `build/Output/SHA256SUMS-0.6.41.txt`。
+  注册表版本/路径一致，built 与 installed EXE 的 SHA256 同为 `6A19E119…8A76E`，
+  用户 `config.json` 前后哈希一致（证据：`artifacts/install_0641_rebuild/`，不入库）。
+- 分发包 `屏译通-Setup-0.6.41.zip`（`testzip=None`、成员哈希一致）及
+  `parts_0641/*.part` 六卷拼接 SHA256 与 zip 相同（`9bb13176…bec86c`）；
+  校验清单 `build/Output/SHA256SUMS-0.6.41.txt` 已随重建重算（9 条）。
+- 重建后产物 SHA256：
+  - `屏译通-Setup-0.6.41.exe` = `b5a7afa3fe95e01e6f9f9876004b66f68c8f0e9ce1a6c09777e39c39c74b2756`
+  - `屏译通-Setup-0.6.41-1.bin` = `88236eca6703ada3f565899c73991489ac3392cc9de41fd829e1945096ec47af`
 
 ## 0.6.40（2026-10-22）
 
