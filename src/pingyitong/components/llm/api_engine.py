@@ -50,6 +50,7 @@ import select
 import ssl
 import threading
 import time
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlsplit
 
@@ -83,6 +84,78 @@ _TEMPERATURE_HINT = "'temperature'"
 _THINK_BLOCK = re.compile(r"<think>.*?</think>", re.DOTALL)
 #: 未闭合的 <think>：模型在 max_tokens 内没写完思考，正文不可信，整段剥离
 _THINK_UNCLOSED = re.compile(r"<think>.*$", re.DOTALL)
+
+
+# ------------------------------------------------------------------
+# 系统代理（与 urlopen_proxy_safe.py 语义保持一致）
+# ------------------------------------------------------------------
+
+def _proxy_entries() -> dict[str, str]:
+    """当前系统代理映射（http/https 条目）；无代理返回空 dict。"""
+    try:
+        proxies = urllib.request.getproxies()
+    except Exception:  # noqa: BLE001 - 注册表/环境异常不拦住连接
+        return {}
+    return {k: v for k, v in proxies.items() if k in ("http", "https")}
+
+
+def _is_loopback(proxy_value: str) -> bool:
+    """代理论送地址形如 ``http://127.0.0.1:7892``；判断其主机段。"""
+    host = urlsplit(proxy_value if "//" in proxy_value else "//" + proxy_value).hostname
+    if not host:
+        return False
+    return host.lower() in {"127.0.0.1", "localhost", "::1", "[::1]"}
+
+
+def _system_proxy_for(url: str) -> str | None:
+    """返回适用于给定 URL 的系统代理地址；无代理返回 ``None``。
+
+    远程代理与本机代理都返回，调用方自行决定是否走代理或降级直连。
+    """
+    proxies = _proxy_entries()
+    if not proxies:
+        return None
+    scheme = urlsplit(url).scheme or "https"
+    return proxies.get(scheme)
+
+
+def _new_connection_through_proxy(
+    proxy: str,
+    target_host: str,
+    target_port: int,
+    scheme: str,
+    timeout: float,
+    ssl_context: ssl.SSLContext | None,
+) -> http.client.HTTPConnection:
+    """通过 HTTP 代理建到目标主机的连接。
+
+    HTTPS 目标：先 CONnect 隧道，再在 socket 上做 SSL 握手；
+    HTTP 目标：直接复用代理连接（http.client 的请求行会带完整 URL）。
+    """
+    proxy_parts = urlsplit(proxy if "//" in proxy else "//" + proxy)
+    proxy_host = proxy_parts.hostname or ""
+    proxy_port = proxy_parts.port or (443 if proxy_parts.scheme == "https" else 80)
+
+    conn = http.client.HTTPConnection(proxy_host, proxy_port, timeout=timeout)
+    conn.connect()
+
+    if scheme == "https":
+        # HTTP CONNECT 隧道：代理把 TCP 连接转发到目标主机
+        connect_request = (
+            f"CONNECT {target_host}:{target_port} HTTP/1.1\r\n"
+            f"Host: {target_host}:{target_port}\r\n"
+            "\r\n"
+        )
+        conn.send(connect_request.encode("utf-8"))
+        resp = conn.response()
+        if resp.status != 200:
+            conn.close()
+            raise OSError(f"代理 CONNECT 失败：HTTP {resp.status}")
+        resp.read()
+        sock = ssl_context.wrap_socket(conn.sock, server_hostname=target_host)
+        conn.sock = sock
+
+    return conn
 
 
 def strip_thinking(text: str) -> str:
@@ -535,12 +608,25 @@ class ApiEngine:
         return data
 
     def _new_connection(self) -> http.client.HTTPConnection:
-        if self._scheme == "https":
-            return http.client.HTTPSConnection(
-                self._host, self._port, timeout=self._timeout,
-                context=self._ssl_context,
-            )
-        return http.client.HTTPConnection(self._host, self._port, timeout=self._timeout)
+        proxy = _system_proxy_for(self._base_url)
+        if proxy is None:
+            # 无系统代理：保持原有直连行为
+            if self._scheme == "https":
+                return http.client.HTTPSConnection(
+                    self._host, self._port, timeout=self._timeout,
+                    context=self._ssl_context,
+                )
+            return http.client.HTTPConnection(self._host, self._port, timeout=self._timeout)
+
+        # 系统有代理：通过代理建连（HTTPS 走 CONNECT 隧道；HTTP 直接复用代理连接）
+        return _new_connection_through_proxy(
+            proxy=proxy,
+            target_host=self._host,
+            target_port=self._port,
+            scheme=self._scheme,
+            timeout=self._timeout,
+            ssl_context=self._ssl_context,
+        )
 
     def _checkout(self) -> http.client.HTTPConnection | None:
         while True:

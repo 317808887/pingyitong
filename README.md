@@ -369,6 +369,9 @@ python run.py --help            # 查看帮助
 ├── pyproject.toml                  # 打包配置与工具配置
 ├── requirements.txt                # 运行依赖
 ├── requirements-dev.txt            # 开发依赖
+├── .gitignore                      # 版本库排除规则
+├── CHANGELOG.md                    # 版本变更记录
+├── README.md                       # 本文件
 ├── LICENSE                         # 著作权与开源合规声明
 │
 ├── config/                         # 随程序分发的默认配置
@@ -381,6 +384,9 @@ python run.py --help            # 查看帮助
 │       ├── app_icon.png            #   设计源文件（1024×1024，透明通道）
 │       ├── app_icon.ico            #   多尺寸图标（16/24/32/48/64/128/256）
 │       └── tray_*.png              #   托盘三态图标（运行中/已暂停/异常）
+│
+├── models/                         # 模型权重（.gguf 不入库，README 说明获取方式）
+│   └── README.md                   #   权重清单与 scripts/download_models.py 用法
 │
 ├── src/pingyitong/                 # 源码（五层架构）
 │   ├── constants.py                #   全局常量（模型、性能参数）
@@ -457,8 +463,26 @@ python run.py --help            # 查看帮助
 │   ├── UI设计规范.md                #   设计令牌与动效规范
 │   ├── 架构说明.md                  #   分层架构与关键设计决策
 │   ├── 用户手册.md                  #   面向最终用户的操作说明
+│   ├── 联网预翻译技术方案.md        #   预取与字幕源设计
+│   ├── 问题标注与模型更换影响分析_20261023.md
+│   ├── 作品介绍_屏译通.md           #   竞赛提交用的项目介绍
 │   ├── language_test_1.7b.json     #   1.7B 逐语言实测原始记录
-│   └── language_test_4b.json       #   4B 逐语言实测原始记录
+│   ├── language_test_4b.json       #   4B 逐语言实测原始记录
+│   ├── measurements/               #   实测与验证记录
+│   │   ├── e2e_latency_2026-09-20.json          #   端到端时延实测
+│   │   ├── language_functional_audit_20261006.md#   142 语言功能审查
+│   │   ├── installed_desktop_validation_20261004.md
+│   │   ├── desktop_function_fix_20261001.md
+│   │   └── capture_language_feedback_fix_20261001.md
+│   └── reports/                    #   过程报告（版本收口、缺陷修复记录）
+│       ├── OVERLAY_FIX_REPORT_20261012.md
+│       ├── PROJECT_STATUS_ARCHIVE_20261021.md
+│       └── VERIFICATION_REPORT_20261011.md
+│
+├── database/                       # 用户数据（翻译历史，隐私敏感，不入库）
+│   └── backup_*/                   #   本地备份；*.db 已被 .gitignore 排除
+│
+├── CHANGELOG.md                    # 版本变更记录
 │
 ├── tests/                          # 测试
 │   ├── test_language.py            #   语言检测

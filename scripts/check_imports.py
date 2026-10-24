@@ -44,6 +44,7 @@ OPTIONAL_THIRD_PARTY = {
     "llama_cpp",
     "psutil",
     "pynvml",
+    "winrt",
 }
 
 

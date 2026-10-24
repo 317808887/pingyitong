@@ -6,7 +6,9 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
+# 注意：不要在此写 build/ —— 那会把 build/build_exe.py 与 build/installer.iss
+# 这两个源码文件一并排除，干净克隆后 tests/test_build_exe_smoke.py 无法加载
+# 构建脚本，pytest collection 阶段即失败。产物由下方 build/Output/ 精确排除。
 develop-eggs/
 dist/
 downloads/
@@ -46,6 +48,8 @@ htmlcov/
 *.spec.bak
 # Inno Setup 输出
 build/Output/
+# PyInstaller onedir 输出
+build/dist/
 *.exe
 
 # ---------------------------------------------------------------------------
@@ -70,7 +74,10 @@ models/*
 
 # 推理运行时（llama-server 可执行文件与 DLL，约 600MB）
 # 交付目录中已包含，但同样不适合入库；需要时用 scripts/download_runtime.py 获取。
-runtime/
+# 注意：不能用 runtime/* 再配合 !runtime/llama/README.md 豁免——git 对已被排除的
+# 目录不再递归，豁免规则不会生效。因此逐个目录精确排除，README 单独放行。
+runtime/llama/*
+!runtime/llama/README.md
 # OCR 模型缓存
 ocr_models/
 
@@ -103,3 +110,9 @@ _app_err.txt
 _app_out.txt
 _pid.txt
 _dbg_*.png
+
+# 本地运行/构建产物与误生成的重定向垃圾
+build/work/
+=1.8
+nul
+old_tray_active.png

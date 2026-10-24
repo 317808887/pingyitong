@@ -25,6 +25,9 @@ classifiers = [
 ]
 
 # 运行依赖与 requirements.txt 保持一致
+# 三个 prefetch 依赖曾只写在 requirements.txt 里而漏掉此处，导致
+# `pip install -e .` 与 `pip install -r requirements.txt` 装出两套环境。
+# src/pingyitong/services/prefetch/ 真实 import 这三个模块。
 dependencies = [
     "PyQt6>=6.5,<7.0",
     "mss>=9.0",
@@ -33,10 +36,13 @@ dependencies = [
     "rapidocr-onnxruntime==1.4.4",
     "psutil>=5.9",
     "llama-cpp-python>=0.2.20",
+    "rapidfuzz>=3.0",
+    "charset-normalizer>=3.0",
+    "trafilatura>=1.8",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.1.9", "mypy>=1.8"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.1.9", "mypy>=1.8", "types-psutil>=5.9", "pyinstaller>=6.3"]
 build = ["pyinstaller>=6.3"]
 
 [project.scripts]
@@ -51,8 +57,11 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.package-data]
-pingyitong = ["py.typed"]
+# 不声明 py.typed：仓库的 mypy 配置（见下方 [tool.mypy]）把 src/pingyitong/ui/
+# 整个排除在外，从未承诺全量类型覆盖。放一个 py.typed 会让 Pyright/IDE 把本包
+# 当作"有类型承诺"的包来检查，而现有标注密度撑不起这个承诺——实测开启后
+# pipeline.py 单文件即报出 20+ 处 object 属性错误。没有 py.typed 时
+# 下游项目按无类型包处理，反而是诚实的标注状态。
 
 # ---------------------------------------------------------------------------
 # 工具配置
