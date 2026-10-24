@@ -504,6 +504,12 @@ python run.py --help            # 查看帮助
 │   ├── build_exe.py                #   PyInstaller 打包脚本
 │   └── installer.iss               #   Inno Setup 安装包脚本
 │
+├── .github/                        # 仓库级配置
+│   └── workflows/ci.yml            #   GitHub Actions（导入检查 + README 树校验）
+│
+├── runtime/                        # 推理运行时预期位置（约 596 MB，二进制不入库）
+│   └── llama/README.md             #   运行时清单与 scripts/download_runtime.py 用法
+│
 └── scripts/                        # 辅助脚本
     ├── check_imports.py            #   静态导入检查（无需安装依赖）
     ├── download_models.py          #   模型权重下载（断点续传 + SHA256）
@@ -514,6 +520,8 @@ python run.py --help            # 查看帮助
     ├── verify_region_translation.py#   框选区域全链路验证（含渲染坐标检查）
     ├── repro_region_crash.py       #   框选崩溃复现（回归用）
     ├── verify_child_cleanup.py     #   验证强杀程序不留孤儿进程
+    ├── verify_deps_sync.py         #   校验 requirements.txt 与 pyproject.toml 依赖一致
+    ├── verify_readme_tree.py       #   校验本文件「项目结构」树与仓库实际内容一致
     └── probe_qt_exception.py       #   验证 PyQt6 异常终止行为
 ```
 
